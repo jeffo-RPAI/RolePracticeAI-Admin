@@ -7,6 +7,7 @@ import {
   LayoutDashboard, Headphones, Users, MessageSquare,
   Activity, BarChart3, Phone, Settings2, Newspaper, SlidersHorizontal,
   FlaskConical, ClipboardList, Bug, MessageCircle, Wrench, Tag,
+  Mail, Globe,
 } from 'lucide-react';
 import AdminDashboardSection from './components/admin/AdminDashboardSection';
 import AdminSupportSection from './components/admin/AdminSupportSection';
@@ -24,6 +25,8 @@ import AdminNewsletterSection from './components/admin/AdminNewsletterSection';
 import AdminPlatformSettingsSection from './components/admin/AdminPlatformSettingsSection';
 import AdminPromoCodesSection from './components/admin/AdminPromoCodesSection';
 import AdminFeedback from './AdminFeedback';
+import AdminEmailLogsSection from './components/admin/AdminEmailLogsSection';
+import AdminWebsiteTrafficSection from './components/admin/AdminWebsiteTrafficSection';
 
 const sections = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -49,6 +52,7 @@ const sections = [
     subTabs: [
       { key: 'calls', label: 'Calls', icon: Phone },
       { key: 'analytics', label: 'Analytics', icon: BarChart3 },
+      { key: 'traffic', label: 'Website Traffic', icon: Globe },
     ],
   },
   {
@@ -56,6 +60,7 @@ const sections = [
     subTabs: [
       { key: 'messaging', label: 'Messaging', icon: MessageSquare },
       { key: 'newsletter', label: 'Newsletter', icon: Newspaper },
+      { key: 'email_logs', label: 'Email Logs', icon: Mail },
       { key: 'settings', label: 'Settings', icon: SlidersHorizontal },
     ],
   },
@@ -167,12 +172,18 @@ export default function SiteAdminConsole({ theme }) {
       {activeSection === 'activity' && currentSubTab === 'analytics' && (
         <AdminScoreAnalyticsSection theme={theme} />
       )}
+      {activeSection === 'activity' && currentSubTab === 'traffic' && (
+        <AdminWebsiteTrafficSection theme={theme} />
+      )}
 
       {activeSection === 'comms' && currentSubTab === 'messaging' && (
         <AdminMessagingSection theme={theme} />
       )}
       {activeSection === 'comms' && currentSubTab === 'newsletter' && (
         <AdminNewsletterSection theme={theme} />
+      )}
+      {activeSection === 'comms' && currentSubTab === 'email_logs' && (
+        <AdminEmailLogsSection theme={theme} />
       )}
       {activeSection === 'comms' && currentSubTab === 'settings' && (
         <AdminPlatformSettingsSection theme={theme} />
