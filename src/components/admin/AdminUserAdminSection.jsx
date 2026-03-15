@@ -1936,7 +1936,7 @@ function OrgDetailView({ orgId, orgName, theme, onBack }) {
                   <>
                     {addUserInviteResult.emailSent
                       ? `Invite email sent to ${addUserInviteResult.email}!`
-                      : `User added. Email failed — share code manually: `}
+                      : `User added. Email failed – share code manually: `}
                     {!addUserInviteResult.emailSent && addUserInviteResult.code && (
                       <span className="font-mono font-bold ml-1">{addUserInviteResult.code}</span>
                     )}
@@ -2474,7 +2474,7 @@ function OrgDetailView({ orgId, orgName, theme, onBack }) {
                 Chat Message to {msgUser?.full_name || 'User'}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {msgUser?.email} — appears in their support chat
+                {msgUser?.email} – appears in their support chat
               </p>
             </div>
             <div className="px-5 py-4">

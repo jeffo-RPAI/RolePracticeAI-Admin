@@ -40,7 +40,7 @@ export default function AdminSupportSection({ theme }) {
 
   return (
     <div className="space-y-6">
-      {/* Error Log — shown first, always visible */}
+      {/* Error Log – shown first, always visible */}
       <AdminErrorDashboard />
 
       {/* Collapsible Metrics Summary */}

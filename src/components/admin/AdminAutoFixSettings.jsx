@@ -160,9 +160,9 @@ export default function AdminAutoFixSettings({ theme }) {
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs text-slate-500 dark:text-slate-400">
             <p className="font-semibold mb-1">Required Environment Variables (Railway):</p>
             <ul className="space-y-0.5 ml-2">
-              <li>GITHUB_TOKEN — Personal Access Token with repo access</li>
-              <li>ANTHROPIC_API_KEY — Claude API key for fix generation</li>
-              <li>TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER — For SMS</li>
+              <li>GITHUB_TOKEN – Personal Access Token with repo access</li>
+              <li>ANTHROPIC_API_KEY – Claude API key for fix generation</li>
+              <li>TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER – For SMS</li>
             </ul>
           </div>
         </div>

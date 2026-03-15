@@ -40,7 +40,7 @@ function AdminGate() {
       return
     }
 
-    // Server-side verification — confirm user has admin role in DB
+    // Server-side verification – confirm user has admin role in DB
     async function verifyAdmin() {
       try {
         const token = await getToken()
