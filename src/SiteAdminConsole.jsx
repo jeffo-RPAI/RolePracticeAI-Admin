@@ -52,7 +52,7 @@ const sections = [
     subTabs: [
       { key: 'calls', label: 'Calls', icon: Phone },
       { key: 'analytics', label: 'Analytics', icon: BarChart3 },
-      { key: 'traffic', label: 'Website Traffic', icon: Globe },
+      // { key: 'traffic', label: 'Website Traffic', icon: Globe }, // Hidden until GA4 service account is configured
     ],
   },
   {
