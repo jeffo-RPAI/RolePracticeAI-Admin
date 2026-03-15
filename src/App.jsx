@@ -141,12 +141,11 @@ export default function App() {
   return (
     <>
       <SignedOut>
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-          <div className="w-full max-w-md">
-            <div className="text-center mb-8">
-              <Shield className="w-10 h-10 text-blue-500 mx-auto mb-3" />
-              <h1 className="text-xl font-bold text-white">RolePractice.ai Admin</h1>
-              <p className="text-slate-400 text-sm mt-1">Sign in to access the admin console</p>
+        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-4">
+          <div className="w-full max-w-sm">
+            <div className="flex flex-col items-center mb-8">
+              <img src="/images/logo-dark.svg" alt="RolePractice.ai" className="h-8 mb-4" />
+              <p className="text-slate-400 text-sm">Sign in to access the admin console</p>
             </div>
             <SignIn
               routing="hash"
@@ -165,7 +164,7 @@ export default function App() {
                   formFieldInput: 'bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500',
                   footerActionLink: 'text-blue-400 hover:text-blue-300',
                   footerActionText: 'text-slate-400',
-                  footer: '!bg-transparent',
+                  footer: 'hidden',
                   formButtonPrimary: 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-lg shadow-[#2563EB]/25',
                   identityPreviewText: 'text-slate-100',
                   identityPreviewEditButton: 'text-blue-400',
