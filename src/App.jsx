@@ -152,7 +152,13 @@ export default function App() {
               appearance={{
                 elements: {
                   rootBox: 'mx-auto',
-                  card: 'bg-slate-900 border border-slate-800',
+                  card: 'bg-white shadow-2xl',
+                  headerTitle: 'text-slate-900',
+                  headerSubtitle: 'text-slate-600',
+                  formFieldLabel: 'text-slate-700',
+                  formFieldInput: 'text-slate-900',
+                  footerActionText: 'text-slate-600',
+                  footerActionLink: 'text-blue-600 hover:text-blue-700',
                 }
               }}
             />
