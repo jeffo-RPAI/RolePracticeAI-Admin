@@ -33,8 +33,29 @@ function AdminGate() {
       return
     }
 
+    // Log unauthorized access attempts to backend
+    async function logUnauthorizedAttempt(attemptEmail, reason) {
+      try {
+        const token = await getToken()
+        await fetch(`${BACKEND_URL}/api/admin/unauthorized-attempt`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            email: attemptEmail,
+            reason,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent
+          })
+        })
+      } catch (_) { /* best-effort */ }
+    }
+
     // Client-side email check first
     if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      logUnauthorizedAttempt(email, 'email_not_authorized')
       setError('Access denied. This console is restricted to authorized administrators.')
       setChecking(false)
       return
@@ -48,6 +69,7 @@ function AdminGate() {
           headers: { Authorization: `Bearer ${token}` }
         })
         if (!res.ok) {
+          logUnauthorizedAttempt(email, 'backend_verification_failed_' + res.status)
           setError('Failed to verify admin status. Backend returned ' + res.status)
           setChecking(false)
           return
@@ -56,6 +78,7 @@ function AdminGate() {
         if (data.role === 'admin' || data.is_site_admin) {
           setAuthorized(true)
         } else {
+          logUnauthorizedAttempt(email, 'not_admin_in_db')
           setError('Access denied. Your account does not have site admin privileges.')
         }
       } catch (err) {
@@ -144,7 +167,7 @@ export default function App() {
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-4">
           <div className="w-full max-w-sm">
             <div className="flex flex-col items-center mb-8">
-              <img src="/images/logo-dark.svg" alt="RolePractice.ai" className="h-8 mb-4" />
+              <img src="/images/logo-dark.svg" alt="RolePractice.ai" className="h-24 mb-6" />
               <p className="text-slate-400 text-sm">Sign in to access the admin console</p>
             </div>
             <SignIn
