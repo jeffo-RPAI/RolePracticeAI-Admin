@@ -6,8 +6,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { RefreshCw, Send, Eye, Edit3, Trash2, Plus, Mail, CheckCircle, AlertCircle, TestTube } from 'lucide-react';
 
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001')
-  .replace('wss://', 'https://').replace('ws://', 'http://');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 function formatDate(ts) {
   if (!ts) return '–';

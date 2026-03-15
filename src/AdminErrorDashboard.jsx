@@ -6,7 +6,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { CheckCircle, XCircle, Eye, Filter, RefreshCw, Sparkles, Trash2, Archive, ChevronDown, ChevronRight, X, Copy, ClipboardCheck } from 'lucide-react';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_WS_URL?.replace('wss://', 'https://').replace('ws://', 'http://') || 'http://localhost:3001';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 function AdminErrorDashboard() {
   const { getToken } = useAuth();

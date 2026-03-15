@@ -7,7 +7,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { AlertTriangle, Bug, CheckCircle, Clock, TrendingUp, Building2, ChevronDown, ChevronUp } from 'lucide-react';
 import AdminErrorDashboard from '../../AdminErrorDashboard';
 
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001').replace('wss://', 'https://').replace('ws://', 'http://');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 export default function AdminSupportSection({ theme }) {
   const { getToken } = useAuth();

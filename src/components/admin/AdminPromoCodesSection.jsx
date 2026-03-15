@@ -6,8 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { Tag, Copy, Trash2, Eye, EyeOff, ChevronDown, ChevronUp, Plus, RefreshCw, Percent, DollarSign } from 'lucide-react';
 
-const BACKEND_WS_URL = import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001';
-const BACKEND_URL = BACKEND_WS_URL.replace('wss://', 'https://').replace('ws://', 'http://');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 const TIER_OPTIONS = [
   { key: 'solo', label: 'Solo' },

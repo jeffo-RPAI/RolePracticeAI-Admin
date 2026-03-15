@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Play, Filter, Building2 } from 'lucide-react';
 
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001').replace('wss://', 'https://').replace('ws://', 'http://');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 const CATEGORY_LABELS = {
   discovery: 'Discovery & Questioning',

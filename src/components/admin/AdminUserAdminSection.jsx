@@ -19,7 +19,7 @@ const ALL_METHODOLOGIES = [
   { key: 'target_account',   name: 'Target Account Selling' },
 ];
 
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001').replace('wss://', 'https://').replace('ws://', 'http://');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 export default function AdminUserAdminSection({ theme, navigateToOrg, onNavigateConsumed }) {
   const { getToken } = useAuth();

@@ -6,8 +6,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { RefreshCw, Users, Download, Send, Mail, X, CheckCircle, AlertCircle, ChevronDown, ChevronUp, ChevronsUpDown, Trash2 } from 'lucide-react';
 
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001')
-  .replace('wss://', 'https://').replace('ws://', 'http://');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 const EMAIL_TEMPLATES = [
   { key: 'waitlist_confirm', label: "You're on the list!",       desc: 'Confirms their waitlist spot' },

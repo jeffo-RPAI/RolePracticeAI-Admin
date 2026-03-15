@@ -5,8 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { Key, Copy, Trash2, Eye, EyeOff, ChevronDown, ChevronUp, Plus, RefreshCw, CheckSquare, Square, Send } from 'lucide-react';
 
-const BACKEND_WS_URL = import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001';
-const BACKEND_URL = BACKEND_WS_URL.replace('wss://', 'https://').replace('ws://', 'http://');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 export default function AdminTrialCodes({ theme, getToken }) {
   const isDark = theme === 'dark';

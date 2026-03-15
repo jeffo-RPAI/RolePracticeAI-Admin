@@ -10,7 +10,7 @@ import {
   Zap, ExternalLink, Cloud, Eye, GripVertical, Sparkles, X, Github
 } from 'lucide-react';
 
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001').replace('wss://', 'https://').replace('ws://', 'http://');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 const DEFAULT_CARD_ORDER = ['server', 'database', 'openai', 'xai', 'anthropic', 'clerk', 'stripe', 'resend', 'railway', 'vercel', 'sentry', 'github'];
 const STORAGE_KEY = 'rp_health_card_order';

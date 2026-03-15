@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { MessageCircle, Send, X, User, Bot, Shield, Clock, ChevronDown, ChevronUp, Settings2 } from 'lucide-react';
 
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001').replace('wss://', 'https://').replace('ws://', 'http://');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 export default function AdminChatPanel({ theme }) {
   const { getToken } = useAuth();

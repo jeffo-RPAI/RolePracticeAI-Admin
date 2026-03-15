@@ -10,8 +10,7 @@ import {
 } from 'lucide-react';
 import AdminTrialCodes from '../../AdminTrialCodes';
 
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001')
-  .replace('wss://', 'https://').replace('ws://', 'http://');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 const APP_URL = window.location.origin;
 

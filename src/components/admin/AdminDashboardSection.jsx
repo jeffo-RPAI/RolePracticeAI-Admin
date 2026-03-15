@@ -6,7 +6,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { Building2, Users, DollarSign, UserPlus, AlertTriangle, TrendingDown, Clock, CreditCard, RefreshCw, CheckCircle, XCircle, Eye, ShieldAlert, Save, Circle } from 'lucide-react';
 
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001').replace('wss://', 'https://').replace('ws://', 'http://');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
 export default function AdminDashboardSection({ theme, onOpenOrg }) {
   const { getToken } = useAuth();
