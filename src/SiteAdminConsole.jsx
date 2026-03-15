@@ -172,9 +172,11 @@ export default function SiteAdminConsole({ theme }) {
       {activeSection === 'activity' && currentSubTab === 'analytics' && (
         <AdminScoreAnalyticsSection theme={theme} />
       )}
+      {/* Hidden until GA4 service account is configured
       {activeSection === 'activity' && currentSubTab === 'traffic' && (
         <AdminWebsiteTrafficSection theme={theme} />
       )}
+      */}
 
       {activeSection === 'comms' && currentSubTab === 'messaging' && (
         <AdminMessagingSection theme={theme} />
