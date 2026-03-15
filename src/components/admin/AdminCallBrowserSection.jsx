@@ -275,7 +275,7 @@ export default function AdminCallBrowserSection({ theme }) {
                       onClick={() => setSelectedCall(call)}
                     >
                       <td className={`px-4 py-3 text-sm ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                        {new Date(call.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}{' '}
+                        {new Date(call.createdAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}{' '}
                         <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                           {new Date(call.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                         </span>
