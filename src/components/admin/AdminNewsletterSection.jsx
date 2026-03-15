@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import DOMPurify from 'dompurify';
 import { RefreshCw, Send, Eye, Edit3, Trash2, Plus, Mail, CheckCircle, AlertCircle, TestTube } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
@@ -272,7 +273,7 @@ export default function AdminNewsletterSection({ theme }) {
                 <p className="text-blue-300 text-sm mt-1">AI-powered sales role-play training</p>
               </div>
               <p className="mb-3">Hi Jeff,</p>
-              <div dangerouslySetInnerHTML={{ __html: editBody }} />
+              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(editBody) }} />
               <div className="text-center my-6">
                 <span className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold">Start Practicing Now &rarr;</span>
               </div>
