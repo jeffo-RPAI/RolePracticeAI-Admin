@@ -152,13 +152,26 @@ export default function App() {
               appearance={{
                 elements: {
                   rootBox: 'mx-auto',
-                  card: 'bg-white shadow-2xl',
-                  headerTitle: 'text-slate-900',
-                  headerSubtitle: 'text-slate-600',
-                  formFieldLabel: 'text-slate-700',
-                  formFieldInput: 'text-slate-900',
-                  footerActionText: 'text-slate-600',
-                  footerActionLink: 'text-blue-600 hover:text-blue-700',
+                  card: 'bg-slate-900 border border-slate-700 shadow-2xl',
+                  headerTitle: 'text-white',
+                  headerSubtitle: 'text-slate-400',
+                  formFieldLabel: 'text-slate-300',
+                  formFieldInput: 'bg-slate-800 text-white border-slate-600',
+                  formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
+                  socialButtonsBlockButton: 'bg-slate-800 border-slate-600 text-slate-200 hover:bg-slate-700',
+                  socialButtonsBlockButtonText: 'text-slate-200',
+                  dividerLine: 'bg-slate-700',
+                  dividerText: 'text-slate-500',
+                  footerActionText: 'text-slate-400',
+                  footerActionLink: 'text-blue-400 hover:text-blue-300',
+                  footer: 'bg-slate-900 border-t border-slate-700',
+                  identityPreview: 'bg-slate-800 border-slate-600',
+                  identityPreviewText: 'text-slate-300',
+                  identityPreviewEditButton: 'text-blue-400',
+                  formFieldInputShowPasswordButton: 'text-slate-400',
+                  otpCodeFieldInput: 'bg-slate-800 text-white border-slate-600',
+                  alternativeMethodsBlockButton: 'text-slate-300 border-slate-600',
+                  formResendCodeLink: 'text-blue-400',
                 }
               }}
             />
