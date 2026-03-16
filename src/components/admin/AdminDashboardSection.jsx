@@ -21,6 +21,7 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
   const [betaHoldSaving, setBetaHoldSaving] = useState(false);
   const [betaHoldDirty, setBetaHoldDirty] = useState(false);
   const [betaBadgeEnabled, setBetaBadgeEnabled] = useState(false);
+  const [comingSoonEnabled, setComingSoonEnabled] = useState(false);
   const [pilotApps, setPilotApps] = useState([]);
   const [pilotExpanded, setPilotExpanded] = useState(null);
   const [pilotHistoryOpen, setPilotHistoryOpen] = useState(false);
@@ -39,6 +40,7 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
         setBetaHoldEnabled(data.enabled);
         setBetaHoldMessage(data.message);
         setBetaBadgeEnabled(data.badgeEnabled);
+        setComingSoonEnabled(data.comingSoonEnabled);
       }
     } catch (err) {
       console.error('Error fetching beta hold:', err);
@@ -528,21 +530,43 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
         </div>
       )}
 
-      {/* Beta Controls */}
+      {/* Website Controls */}
       <div className={`rounded-2xl p-5 shadow-lg ring-1 ${
-        betaHoldEnabled
+        betaHoldEnabled || comingSoonEnabled
           ? 'bg-amber-50 dark:bg-amber-950/30 ring-amber-300 dark:ring-amber-700'
           : 'bg-white dark:bg-slate-900 ring-slate-200 dark:ring-slate-800'
       }`}>
         <div className="flex items-center gap-2 mb-4">
-          <ShieldAlert className={`w-5 h-5 ${betaHoldEnabled ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}`} />
-          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-50">Beta Controls</h3>
+          <ShieldAlert className={`w-5 h-5 ${betaHoldEnabled || comingSoonEnabled ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}`} />
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-50">Website Controls</h3>
+        </div>
+
+        {/* Coming Soon Page Toggle */}
+        <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+          <div>
+            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Coming Soon Page</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Show "Coming Soon" page instead of the live website on rolepractice.ai</p>
+          </div>
+          <button
+            onClick={() => {
+              const newVal = !comingSoonEnabled;
+              setComingSoonEnabled(newVal);
+              saveBetaSettings({ comingSoonEnabled: newVal });
+            }}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              comingSoonEnabled ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-600'
+            }`}
+          >
+            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              comingSoonEnabled ? 'translate-x-6' : 'translate-x-1'
+            }`} />
+          </button>
         </div>
 
         {/* Beta Badge Toggle */}
         <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
           <div>
-            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Beta Badge on Logo</p>
+            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Beta Badge</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">Shows a "Beta" stamp on the app logo for all users.</p>
           </div>
           <button
@@ -561,11 +585,11 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
           </button>
         </div>
 
-        {/* Beta Hold Toggle */}
+        {/* Signup Hold Toggle */}
         <div className="flex items-center justify-between mb-3">
           <div>
             <div className="flex items-center gap-2">
-              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Beta Hold</p>
+              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Signup Hold</p>
               <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                 betaHoldEnabled
                   ? 'bg-amber-200 text-amber-800 dark:bg-amber-800/40 dark:text-amber-300'
@@ -574,7 +598,7 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
                 {betaHoldEnabled ? 'Active' : 'Off'}
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Block new users from onboarding – show a holding page instead.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Block new users from signing up – show a holding page instead.</p>
           </div>
           <button
             onClick={() => {
