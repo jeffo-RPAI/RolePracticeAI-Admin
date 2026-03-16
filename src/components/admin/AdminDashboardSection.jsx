@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { Building2, Users, DollarSign, UserPlus, AlertTriangle, TrendingDown, Clock, CreditCard, RefreshCw, CheckCircle, XCircle, Eye, ShieldAlert, Save, Circle, Rocket, Mail, Phone, Globe, ChevronDown, ChevronUp } from 'lucide-react';
+import { Building2, Users, DollarSign, UserPlus, AlertTriangle, TrendingDown, Clock, CreditCard, RefreshCw, CheckCircle, XCircle, Eye, ShieldAlert, Save, Circle, Rocket, Mail, Phone, Globe, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
@@ -132,6 +132,22 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
       }
     } catch (err) {
       console.error('Error updating pilot application:', err);
+    }
+  };
+
+  const deletePilotApp = async (id, name) => {
+    if (!window.confirm(`Delete pilot application from "${name}"? This cannot be undone.`)) return;
+    try {
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/site-admin/pilot-applications/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        fetchPilotApps();
+      }
+    } catch (err) {
+      console.error('Error deleting pilot application:', err);
     }
   };
 
@@ -266,6 +282,12 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
                       >
                         <XCircle className="w-3 h-3" /> Reject
                       </button>
+                      <button
+                        onClick={() => deletePilotApp(app.id, app.name)}
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-600/80 text-white hover:bg-slate-500 transition ml-auto"
+                      >
+                        <Trash2 className="w-3 h-3" /> Delete
+                      </button>
                     </div>
                   </div>
                 )}
@@ -332,13 +354,22 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
                         <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{app.name}</p>
                         <p className="text-xs text-slate-500 dark:text-slate-400">{app.company_name} &middot; {app.rep_count} reps</p>
                       </div>
-                      <div className="text-right shrink-0 ml-3">
-                        {pilotHistoryTab === 'approved' && app.pilot_seats && (
-                          <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{app.pilot_seats} seats / {app.pilot_minutes} min</p>
-                        )}
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500">
-                          {new Date(app.updated_at || app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </p>
+                      <div className="flex items-center gap-2 shrink-0 ml-3">
+                        <div className="text-right">
+                          {pilotHistoryTab === 'approved' && app.pilot_seats && (
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{app.pilot_seats} seats / {app.pilot_minutes} min</p>
+                          )}
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                            {new Date(app.updated_at || app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => deletePilotApp(app.id, app.name)}
+                          className="p-1 rounded text-slate-400 hover:text-red-500 transition"
+                          title="Delete application"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   ))
