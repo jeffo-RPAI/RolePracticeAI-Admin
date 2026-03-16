@@ -127,7 +127,7 @@ function AdminGate() {
       <header className={`border-b ${theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Shield className="w-5 h-5 text-blue-500" />
+            <img src="/images/logo-dark.svg" alt="RolePractice.ai" className="h-6" />
             <span className="font-semibold text-sm">Website Admin Console</span>
             <span className={`text-xs px-2 py-0.5 rounded-full ${theme === 'dark' ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-700'}`}>
               Site Admin
