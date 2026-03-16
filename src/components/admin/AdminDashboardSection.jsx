@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { Building2, Users, DollarSign, UserPlus, AlertTriangle, TrendingDown, Clock, CreditCard, RefreshCw, CheckCircle, XCircle, Eye, ShieldAlert, Save, Circle, Rocket, Mail, Globe, ChevronDown, ChevronUp } from 'lucide-react';
+import { Building2, Users, DollarSign, UserPlus, AlertTriangle, TrendingDown, Clock, CreditCard, RefreshCw, CheckCircle, XCircle, Eye, ShieldAlert, Save, Circle, Rocket, Mail, Phone, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
@@ -226,6 +226,9 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                       <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
                         <Mail className="w-3 h-3" /> {app.email}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                        <Phone className="w-3 h-3" /> {app.phone || 'N/A'}
                       </div>
                       <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
                         <Globe className="w-3 h-3" /> {app.website || 'N/A'}
