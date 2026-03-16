@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { Building2, Users, DollarSign, UserPlus, AlertTriangle, TrendingDown, Clock, CreditCard, RefreshCw, CheckCircle, XCircle, Eye, ShieldAlert, Save, Circle, Rocket, Mail, Phone, Globe, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import { Building2, Users, DollarSign, UserPlus, AlertTriangle, TrendingDown, Clock, CreditCard, RefreshCw, CheckCircle, XCircle, Eye, ShieldAlert, Save, Circle, Rocket, Mail, Phone, Globe, ChevronDown, ChevronUp, Trash2, Edit2 } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
@@ -25,6 +25,8 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
   const [pilotExpanded, setPilotExpanded] = useState(null);
   const [pilotHistoryOpen, setPilotHistoryOpen] = useState(false);
   const [pilotHistoryTab, setPilotHistoryTab] = useState('approved');
+  const [editingPilot, setEditingPilot] = useState(null);
+  const [editForm, setEditForm] = useState({});
 
   const fetchBetaHold = useCallback(async () => {
     try {
@@ -151,6 +153,44 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
     }
   };
 
+  const patchPilotApp = async (id, updates) => {
+    try {
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/site-admin/pilot-applications/${id}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (res.ok) {
+        setEditingPilot(null);
+        setEditForm({});
+        fetchPilotApps();
+      }
+    } catch (err) {
+      console.error('Error patching pilot application:', err);
+    }
+  };
+
+  const startEditing = (app) => {
+    setEditingPilot(app.id);
+    setEditForm({
+      name: app.name || '',
+      email: app.email || '',
+      phone: app.phone || '',
+      company_name: app.company_name || '',
+      website: app.website || '',
+      rep_count: app.rep_count || '',
+      team_type: app.team_type || '',
+      start_timing: app.start_timing || '',
+      notes: app.notes || '',
+    });
+  };
+
+  const cancelEditing = () => {
+    setEditingPilot(null);
+    setEditForm({});
+  };
+
   useEffect(() => { fetchData(); fetchBetaHold(); fetchOnline(); fetchPilotApps(); }, [fetchData, fetchBetaHold, fetchOnline, fetchPilotApps]);
 
   // Poll online users every 30 seconds
@@ -230,6 +270,13 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
                       pending
                     </span>
                     <button
+                      onClick={() => startEditing(app)}
+                      className="p-1 rounded text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition"
+                      title="Edit application"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
                       onClick={() => setPilotExpanded(pilotExpanded === app.id ? null : app.id)}
                       className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     >
@@ -237,7 +284,7 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
                     </button>
                   </div>
                 </div>
-                {pilotExpanded === app.id && (
+                {pilotExpanded === app.id && editingPilot !== app.id && (
                   <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2">
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                       <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
@@ -287,6 +334,107 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
                         className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-600/80 text-white hover:bg-slate-500 transition ml-auto"
                       >
                         <Trash2 className="w-3 h-3" /> Delete
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {editingPilot === app.id && (
+                  <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 space-y-3">
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Name</label>
+                        <input
+                          type="text"
+                          value={editForm.name}
+                          onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                          className="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Email</label>
+                        <input
+                          type="email"
+                          value={editForm.email}
+                          onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                          className="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Phone</label>
+                        <input
+                          type="text"
+                          value={editForm.phone}
+                          onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                          className="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Company</label>
+                        <input
+                          type="text"
+                          value={editForm.company_name}
+                          onChange={(e) => setEditForm({ ...editForm, company_name: e.target.value })}
+                          className="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Website</label>
+                        <input
+                          type="text"
+                          value={editForm.website}
+                          onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
+                          className="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Rep Count</label>
+                        <input
+                          type="number"
+                          value={editForm.rep_count}
+                          onChange={(e) => setEditForm({ ...editForm, rep_count: e.target.value })}
+                          className="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Team Type</label>
+                        <input
+                          type="text"
+                          value={editForm.team_type}
+                          onChange={(e) => setEditForm({ ...editForm, team_type: e.target.value })}
+                          className="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Start Timing</label>
+                        <input
+                          type="text"
+                          value={editForm.start_timing}
+                          onChange={(e) => setEditForm({ ...editForm, start_timing: e.target.value })}
+                          className="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Notes</label>
+                      <textarea
+                        value={editForm.notes}
+                        onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                        rows={2}
+                        className="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={() => patchPilotApp(app.id, editForm)}
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition"
+                      >
+                        <Save className="w-3 h-3" /> Save
+                      </button>
+                      <button
+                        onClick={cancelEditing}
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 transition"
+                      >
+                        <XCircle className="w-3 h-3" /> Cancel
                       </button>
                     </div>
                   </div>
