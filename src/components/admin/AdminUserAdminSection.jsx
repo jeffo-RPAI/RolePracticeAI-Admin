@@ -2157,7 +2157,7 @@ function OrgDetailView({ orgId, orgName, theme, onBack }) {
                         err.severity === 'error' ? 'bg-orange-500' :
                         err.severity === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
                       }`} />
-                      <span className="flex-1 truncate text-slate-700 dark:text-slate-300">{err.error_message}</span>
+                      <span className="flex-1 truncate text-slate-700 dark:text-slate-300">{err.message || err.error_message || 'Unknown error'}</span>
                       <span className="text-xs text-slate-400 flex-shrink-0">
                         {err.user_name || err.user_email_full || 'Unknown'}
                       </span>
@@ -2182,7 +2182,7 @@ function OrgDetailView({ orgId, orgName, theme, onBack }) {
                         </div>
                         <div>
                           <span className="font-semibold text-slate-600 dark:text-slate-400">Message:</span>
-                          <p className="mt-0.5 text-slate-800 dark:text-slate-200 whitespace-pre-wrap break-words">{err.error_message}</p>
+                          <p className="mt-0.5 text-slate-800 dark:text-slate-200 whitespace-pre-wrap break-words">{err.message || err.error_message || 'No details'}</p>
                         </div>
                         {err.stack_trace && (
                           <div>
