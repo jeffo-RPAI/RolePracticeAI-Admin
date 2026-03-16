@@ -1577,9 +1577,7 @@ function OrgDetailView({ orgId, orgName, theme, onBack }) {
         </div>
         <button
           onClick={() => {
-            sessionStorage.setItem('impersonate_org_id', orgId);
-            sessionStorage.setItem('impersonate_org_name', orgName);
-            window.location.reload();
+            window.open(`https://app.rolepractice.ai/?impersonate_org=${orgId}&impersonate_name=${encodeURIComponent(orgName)}`, '_blank');
           }}
           className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
         >
