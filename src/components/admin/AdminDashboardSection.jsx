@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { Building2, Users, DollarSign, UserPlus, AlertTriangle, TrendingDown, Clock, CreditCard, RefreshCw, CheckCircle, XCircle, Eye, ShieldAlert, Save, Circle } from 'lucide-react';
+import { Building2, Users, DollarSign, UserPlus, AlertTriangle, TrendingDown, Clock, CreditCard, RefreshCw, CheckCircle, XCircle, Eye, ShieldAlert, Save, Circle, Rocket, Mail, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://api.rolepractice.ai';
 
@@ -21,6 +21,8 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
   const [betaHoldSaving, setBetaHoldSaving] = useState(false);
   const [betaHoldDirty, setBetaHoldDirty] = useState(false);
   const [betaBadgeEnabled, setBetaBadgeEnabled] = useState(false);
+  const [pilotApps, setPilotApps] = useState([]);
+  const [pilotExpanded, setPilotExpanded] = useState(null);
 
   const fetchBetaHold = useCallback(async () => {
     try {
@@ -100,7 +102,38 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
     } catch {}
   }, [getToken]);
 
-  useEffect(() => { fetchData(); fetchBetaHold(); fetchOnline(); }, [fetchData, fetchBetaHold, fetchOnline]);
+  const fetchPilotApps = useCallback(async () => {
+    try {
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/site-admin/pilot-applications`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPilotApps(data.applications || []);
+      }
+    } catch (err) {
+      console.error('Error fetching pilot applications:', err);
+    }
+  }, [getToken]);
+
+  const updatePilotApp = async (id, updates) => {
+    try {
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/site-admin/pilot-applications/${id}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (res.ok) {
+        fetchPilotApps();
+      }
+    } catch (err) {
+      console.error('Error updating pilot application:', err);
+    }
+  };
+
+  useEffect(() => { fetchData(); fetchBetaHold(); fetchOnline(); fetchPilotApps(); }, [fetchData, fetchBetaHold, fetchOnline, fetchPilotApps]);
 
   // Poll online users every 30 seconds
   useEffect(() => {
@@ -235,6 +268,105 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
           )}
         </div>
       </div>
+
+      {/* Pilot Requests */}
+      {pilotApps.length > 0 && (
+        <div className="rounded-2xl p-5 shadow-lg ring-1 bg-white dark:bg-slate-900 ring-slate-200 dark:ring-slate-800">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Rocket className="w-5 h-5 text-blue-500" />
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-50">Pilot Requests</h3>
+              {pilotApps.filter(a => a.status === 'pending').length > 0 && (
+                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                  {pilotApps.filter(a => a.status === 'pending').length} pending
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="space-y-2">
+            {pilotApps.map(app => (
+              <div key={app.id} className={`rounded-xl border p-4 transition ${
+                app.status === 'pending'
+                  ? 'border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20'
+                  : app.status === 'approved'
+                    ? 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20'
+                    : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">{app.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{app.company_name} &middot; {app.rep_count} reps</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                      app.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                        : app.status === 'approved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                    }`}>
+                      {app.status}
+                    </span>
+                    <button
+                      onClick={() => setPilotExpanded(pilotExpanded === app.id ? null : app.id)}
+                      className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    >
+                      {pilotExpanded === app.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                {pilotExpanded === app.id && (
+                  <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                        <Mail className="w-3 h-3" /> {app.email}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                        <Globe className="w-3 h-3" /> {app.website || 'N/A'}
+                      </div>
+                      <div className="text-slate-500 dark:text-slate-400">
+                        <span className="font-medium text-slate-700 dark:text-slate-300">Team:</span> {app.team_type}
+                      </div>
+                      <div className="text-slate-500 dark:text-slate-400">
+                        <span className="font-medium text-slate-700 dark:text-slate-300">Timing:</span> {app.start_timing || 'N/A'}
+                      </div>
+                    </div>
+                    {app.primary_use_case && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <span className="font-medium text-slate-700 dark:text-slate-300">Use case:</span> {app.primary_use_case}
+                      </p>
+                    )}
+                    {app.notes && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <span className="font-medium text-slate-700 dark:text-slate-300">Notes:</span> {app.notes}
+                      </p>
+                    )}
+                    <p className="text-xs text-slate-400 dark:text-slate-500">
+                      Applied {new Date(app.created_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(app.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                    </p>
+                    {app.status === 'pending' && (
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          onClick={() => updatePilotApp(app.id, { status: 'approved', pilot_seats: app.rep_count, pilot_minutes: 200 })}
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 transition"
+                        >
+                          <CheckCircle className="w-3 h-3" /> Approve
+                        </button>
+                        <button
+                          onClick={() => updatePilotApp(app.id, { status: 'rejected' })}
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-red-600/80 text-white hover:bg-red-500 transition"
+                        >
+                          <XCircle className="w-3 h-3" /> Reject
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
