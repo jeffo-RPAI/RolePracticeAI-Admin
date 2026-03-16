@@ -185,91 +185,7 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
 
   return (
     <div className="space-y-6">
-      {/* Beta Controls */}
-      <div className={`rounded-2xl p-5 shadow-lg ring-1 ${
-        betaHoldEnabled
-          ? 'bg-amber-50 dark:bg-amber-950/30 ring-amber-300 dark:ring-amber-700'
-          : 'bg-white dark:bg-slate-900 ring-slate-200 dark:ring-slate-800'
-      }`}>
-        <div className="flex items-center gap-2 mb-4">
-          <ShieldAlert className={`w-5 h-5 ${betaHoldEnabled ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}`} />
-          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-50">Beta Controls</h3>
-        </div>
-
-        {/* Beta Badge Toggle */}
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
-          <div>
-            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Beta Badge on Logo</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Shows a "Beta" stamp on the app logo for all users.</p>
-          </div>
-          <button
-            onClick={() => {
-              const newVal = !betaBadgeEnabled;
-              setBetaBadgeEnabled(newVal);
-              saveBetaSettings({ badgeEnabled: newVal });
-            }}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              betaBadgeEnabled ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-600'
-            }`}
-          >
-            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-              betaBadgeEnabled ? 'translate-x-6' : 'translate-x-1'
-            }`} />
-          </button>
-        </div>
-
-        {/* Beta Hold Toggle */}
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Beta Hold</p>
-              <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                betaHoldEnabled
-                  ? 'bg-amber-200 text-amber-800 dark:bg-amber-800/40 dark:text-amber-300'
-                  : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
-              }`}>
-                {betaHoldEnabled ? 'Active' : 'Off'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Block new users from onboarding – show a holding page instead.</p>
-          </div>
-          <button
-            onClick={() => {
-              const newVal = !betaHoldEnabled;
-              setBetaHoldEnabled(newVal);
-              saveBetaSettings({ enabled: newVal, message: betaHoldMessage });
-            }}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              betaHoldEnabled ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-600'
-            }`}
-          >
-            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-              betaHoldEnabled ? 'translate-x-6' : 'translate-x-1'
-            }`} />
-          </button>
-        </div>
-        <div className="flex gap-2">
-          <textarea
-            value={betaHoldMessage}
-            onChange={(e) => { setBetaHoldMessage(e.target.value); setBetaHoldDirty(true); }}
-            rows={2}
-            placeholder="Custom message for the holding page..."
-            className="flex-1 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-amber-500"
-          />
-          {betaHoldDirty && (
-            <button
-              onClick={() => saveBetaSettings({ enabled: betaHoldEnabled, message: betaHoldMessage })}
-              disabled={betaHoldSaving}
-              className="self-end px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium flex items-center gap-1.5 transition"
-            >
-              <Save className="w-3.5 h-3.5" />
-              {betaHoldSaving ? 'Saving...' : 'Save'}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Pilot Requests */}
+      {/* Pilot Requests – top of dashboard */}
       {pilotApps.length > 0 && (
         <div className="rounded-2xl p-5 shadow-lg ring-1 bg-white dark:bg-slate-900 ring-slate-200 dark:ring-slate-800">
           <div className="flex items-center justify-between mb-4">
@@ -367,6 +283,90 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
           </div>
         </div>
       )}
+
+      {/* Beta Controls */}
+      <div className={`rounded-2xl p-5 shadow-lg ring-1 ${
+        betaHoldEnabled
+          ? 'bg-amber-50 dark:bg-amber-950/30 ring-amber-300 dark:ring-amber-700'
+          : 'bg-white dark:bg-slate-900 ring-slate-200 dark:ring-slate-800'
+      }`}>
+        <div className="flex items-center gap-2 mb-4">
+          <ShieldAlert className={`w-5 h-5 ${betaHoldEnabled ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}`} />
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-50">Beta Controls</h3>
+        </div>
+
+        {/* Beta Badge Toggle */}
+        <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+          <div>
+            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Beta Badge on Logo</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Shows a "Beta" stamp on the app logo for all users.</p>
+          </div>
+          <button
+            onClick={() => {
+              const newVal = !betaBadgeEnabled;
+              setBetaBadgeEnabled(newVal);
+              saveBetaSettings({ badgeEnabled: newVal });
+            }}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              betaBadgeEnabled ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-600'
+            }`}
+          >
+            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              betaBadgeEnabled ? 'translate-x-6' : 'translate-x-1'
+            }`} />
+          </button>
+        </div>
+
+        {/* Beta Hold Toggle */}
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Beta Hold</p>
+              <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                betaHoldEnabled
+                  ? 'bg-amber-200 text-amber-800 dark:bg-amber-800/40 dark:text-amber-300'
+                  : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+              }`}>
+                {betaHoldEnabled ? 'Active' : 'Off'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Block new users from onboarding – show a holding page instead.</p>
+          </div>
+          <button
+            onClick={() => {
+              const newVal = !betaHoldEnabled;
+              setBetaHoldEnabled(newVal);
+              saveBetaSettings({ enabled: newVal, message: betaHoldMessage });
+            }}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              betaHoldEnabled ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-600'
+            }`}
+          >
+            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              betaHoldEnabled ? 'translate-x-6' : 'translate-x-1'
+            }`} />
+          </button>
+        </div>
+        <div className="flex gap-2">
+          <textarea
+            value={betaHoldMessage}
+            onChange={(e) => { setBetaHoldMessage(e.target.value); setBetaHoldDirty(true); }}
+            rows={2}
+            placeholder="Custom message for the holding page..."
+            className="flex-1 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-amber-500"
+          />
+          {betaHoldDirty && (
+            <button
+              onClick={() => saveBetaSettings({ enabled: betaHoldEnabled, message: betaHoldMessage })}
+              disabled={betaHoldSaving}
+              className="self-end px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium flex items-center gap-1.5 transition"
+            >
+              <Save className="w-3.5 h-3.5" />
+              {betaHoldSaving ? 'Saving...' : 'Save'}
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
