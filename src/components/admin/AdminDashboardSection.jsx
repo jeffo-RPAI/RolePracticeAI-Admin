@@ -23,6 +23,8 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
   const [betaBadgeEnabled, setBetaBadgeEnabled] = useState(false);
   const [pilotApps, setPilotApps] = useState([]);
   const [pilotExpanded, setPilotExpanded] = useState(null);
+  const [pilotHistoryOpen, setPilotHistoryOpen] = useState(false);
+  const [pilotHistoryTab, setPilotHistoryTab] = useState('approved');
 
   const fetchBetaHold = useCallback(async () => {
     try {
@@ -185,29 +187,21 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
 
   return (
     <div className="space-y-6">
-      {/* Pilot Requests – top of dashboard */}
-      {pilotApps.length > 0 && (
+      {/* Pilot Requests – top of dashboard (pending only) */}
+      {pilotApps.filter(a => a.status === 'pending').length > 0 && (
         <div className="rounded-2xl p-5 shadow-lg ring-1 bg-white dark:bg-slate-900 ring-slate-200 dark:ring-slate-800">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Rocket className="w-5 h-5 text-blue-500" />
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-50">Pilot Requests</h3>
-              {pilotApps.filter(a => a.status === 'pending').length > 0 && (
-                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                  {pilotApps.filter(a => a.status === 'pending').length} pending
-                </span>
-              )}
+              <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                {pilotApps.filter(a => a.status === 'pending').length} pending
+              </span>
             </div>
           </div>
           <div className="space-y-2">
-            {pilotApps.map(app => (
-              <div key={app.id} className={`rounded-xl border p-4 transition ${
-                app.status === 'pending'
-                  ? 'border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20'
-                  : app.status === 'approved'
-                    ? 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20'
-                    : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30'
-              }`}>
+            {pilotApps.filter(a => a.status === 'pending').map(app => (
+              <div key={app.id} className="rounded-xl border p-4 transition border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 min-w-0">
                     <div>
@@ -216,12 +210,8 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                      app.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                        : app.status === 'approved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                    }`}>
-                      {app.status}
+                    <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                      pending
                     </span>
                     <button
                       onClick={() => setPilotExpanded(pilotExpanded === app.id ? null : app.id)}
@@ -260,27 +250,99 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
                     <p className="text-xs text-slate-400 dark:text-slate-500">
                       Applied {new Date(app.created_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(app.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                     </p>
-                    {app.status === 'pending' && (
-                      <div className="flex gap-2 pt-1">
-                        <button
-                          onClick={() => updatePilotApp(app.id, { status: 'approved', pilot_seats: app.rep_count, pilot_minutes: 200 })}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 transition"
-                        >
-                          <CheckCircle className="w-3 h-3" /> Approve
-                        </button>
-                        <button
-                          onClick={() => updatePilotApp(app.id, { status: 'rejected' })}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-red-600/80 text-white hover:bg-red-500 transition"
-                        >
-                          <XCircle className="w-3 h-3" /> Reject
-                        </button>
-                      </div>
-                    )}
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={() => updatePilotApp(app.id, { status: 'approved', pilot_seats: app.rep_count, pilot_minutes: 200 })}
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 transition"
+                      >
+                        <CheckCircle className="w-3 h-3" /> Approve
+                      </button>
+                      <button
+                        onClick={() => updatePilotApp(app.id, { status: 'rejected' })}
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-red-600/80 text-white hover:bg-red-500 transition"
+                      >
+                        <XCircle className="w-3 h-3" /> Reject
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Pilot History – approved & rejected, collapsed by default */}
+      {pilotApps.filter(a => a.status === 'approved' || a.status === 'rejected').length > 0 && (
+        <div className="rounded-2xl shadow-lg ring-1 bg-white dark:bg-slate-900 ring-slate-200 dark:ring-slate-800">
+          <button
+            onClick={() => setPilotHistoryOpen(!pilotHistoryOpen)}
+            className="w-full flex items-center justify-between p-5"
+          >
+            <div className="flex items-center gap-2">
+              <Rocket className="w-5 h-5 text-slate-400" />
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-50">Pilot History</h3>
+              <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                {pilotApps.filter(a => a.status === 'approved').length} approved
+              </span>
+              <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                {pilotApps.filter(a => a.status === 'rejected').length} rejected
+              </span>
+            </div>
+            {pilotHistoryOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+          </button>
+          {pilotHistoryOpen && (
+            <div className="px-5 pb-5">
+              <div className="flex gap-1 mb-3">
+                <button
+                  onClick={() => setPilotHistoryTab('approved')}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${
+                    pilotHistoryTab === 'approved'
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                      : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  Approved ({pilotApps.filter(a => a.status === 'approved').length})
+                </button>
+                <button
+                  onClick={() => setPilotHistoryTab('rejected')}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${
+                    pilotHistoryTab === 'rejected'
+                      ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                      : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  Rejected ({pilotApps.filter(a => a.status === 'rejected').length})
+                </button>
+              </div>
+              <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
+                {pilotApps.filter(a => a.status === pilotHistoryTab).length === 0 ? (
+                  <p className="text-sm text-slate-500 dark:text-slate-400 py-2">No {pilotHistoryTab} applications</p>
+                ) : (
+                  pilotApps.filter(a => a.status === pilotHistoryTab).map(app => (
+                    <div key={app.id} className={`flex items-center justify-between p-3 rounded-lg border ${
+                      pilotHistoryTab === 'approved'
+                        ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/30 dark:bg-emerald-950/10'
+                        : 'border-slate-200 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/20'
+                    }`}>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{app.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{app.company_name} &middot; {app.rep_count} reps</p>
+                      </div>
+                      <div className="text-right shrink-0 ml-3">
+                        {pilotHistoryTab === 'approved' && app.pilot_seats && (
+                          <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{app.pilot_seats} seats / {app.pilot_minutes} min</p>
+                        )}
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                          {new Date(app.updated_at || app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
