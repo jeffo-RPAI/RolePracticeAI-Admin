@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Headphones, Users, MessageSquare,
   Activity, BarChart3, Phone, Settings2, Newspaper, SlidersHorizontal,
   FlaskConical, ClipboardList, Bug, MessageCircle, Wrench, Tag,
-  Mail, Globe,
+  Mail, Globe, UserPlus,
 } from 'lucide-react';
 import AdminDashboardSection from './components/admin/AdminDashboardSection';
 import AdminSupportSection from './components/admin/AdminSupportSection';
@@ -27,6 +27,7 @@ import AdminPromoCodesSection from './components/admin/AdminPromoCodesSection';
 import AdminFeedback from './AdminFeedback';
 import AdminEmailLogsSection from './components/admin/AdminEmailLogsSection';
 import AdminWebsiteTrafficSection from './components/admin/AdminWebsiteTrafficSection';
+import AdminTrialLeadsSection from './components/admin/AdminTrialLeadsSection';
 
 const sections = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -38,6 +39,7 @@ const sections = [
       { key: 'waitlist', label: 'Waitlist', icon: ClipboardList },
     ],
   },
+  { key: 'leads', label: 'Leads', icon: UserPlus },
   {
     key: 'support', label: 'Support', icon: Headphones,
     subTabs: [
@@ -151,6 +153,10 @@ export default function SiteAdminConsole({ theme }) {
       )}
       {activeSection === 'users' && currentSubTab === 'waitlist' && (
         <AdminWaitlistSection theme={theme} />
+      )}
+
+      {activeSection === 'leads' && (
+        <AdminTrialLeadsSection theme={theme} />
       )}
 
       {activeSection === 'support' && currentSubTab === 'errors' && (
