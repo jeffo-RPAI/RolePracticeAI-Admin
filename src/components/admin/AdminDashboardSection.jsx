@@ -28,6 +28,7 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
   const [pilotHistoryTab, setPilotHistoryTab] = useState('approved');
   const [editingPilot, setEditingPilot] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [sendingEndedEmail, setSendingEndedEmail] = useState(null);
 
   const fetchBetaHold = useCallback(async () => {
     try {
@@ -191,6 +192,29 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
   const cancelEditing = () => {
     setEditingPilot(null);
     setEditForm({});
+  };
+
+  const sendPilotEndedEmail = async (app) => {
+    if (!window.confirm(`Send pilot ended email to ${app.name} at ${app.company_name}?`)) return;
+    setSendingEndedEmail(app.id);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/site-admin/pilot-applications/${app.id}/send-ended-email`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        alert('Pilot ended email sent successfully.');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Failed to send email.');
+      }
+    } catch (err) {
+      console.error('Error sending pilot ended email:', err);
+      alert('Failed to send email.');
+    } finally {
+      setSendingEndedEmail(null);
+    }
   };
 
   useEffect(() => { fetchData(); fetchBetaHold(); fetchOnline(); fetchPilotApps(); }, [fetchData, fetchBetaHold, fetchOnline, fetchPilotApps]);
@@ -513,6 +537,20 @@ export default function AdminDashboardSection({ theme, onOpenOrg }) {
                             {new Date(app.updated_at || app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </p>
                         </div>
+                        {pilotHistoryTab === 'approved' && (
+                          <button
+                            onClick={() => sendPilotEndedEmail(app)}
+                            disabled={sendingEndedEmail === app.id}
+                            className="p-1 rounded text-slate-400 hover:text-blue-500 transition"
+                            title="Send pilot ended email"
+                          >
+                            {sendingEndedEmail === app.id ? (
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Mail className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        )}
                         <button
                           onClick={() => deletePilotApp(app.id, app.name)}
                           className="p-1 rounded text-slate-400 hover:text-red-500 transition"
