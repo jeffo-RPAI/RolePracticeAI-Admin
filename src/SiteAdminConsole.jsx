@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Headphones, Users, MessageSquare,
   Activity, BarChart3, Phone, Settings2, Newspaper, SlidersHorizontal,
   FlaskConical, ClipboardList, Bug, MessageCircle, Wrench, Tag,
-  Mail, Send, Globe, UserPlus,
+  Mail, Send, Globe, UserPlus, Languages,
 } from 'lucide-react';
 import AdminDashboardSection from './components/admin/AdminDashboardSection';
 import AdminSupportSection from './components/admin/AdminSupportSection';
@@ -29,6 +29,7 @@ import AdminEmailLogsSection from './components/admin/AdminEmailLogsSection';
 import AdminEmailSection from './components/admin/AdminEmailSection';
 import AdminWebsiteTrafficSection from './components/admin/AdminWebsiteTrafficSection';
 import AdminTrialLeadsSection from './components/admin/AdminTrialLeadsSection';
+import AdminLanguageSection from './components/admin/AdminLanguageSection';
 
 const sections = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -66,6 +67,7 @@ const sections = [
       { key: 'email_mgmt', label: 'Email', icon: Send },
       { key: 'email_logs', label: 'Email Logs', icon: Mail },
       { key: 'settings', label: 'Settings', icon: SlidersHorizontal },
+      { key: 'languages', label: 'Languages', icon: Languages },
     ],
   },
   {
@@ -200,6 +202,9 @@ export default function SiteAdminConsole({ theme }) {
       )}
       {activeSection === 'comms' && currentSubTab === 'settings' && (
         <AdminPlatformSettingsSection theme={theme} />
+      )}
+      {activeSection === 'comms' && currentSubTab === 'languages' && (
+        <AdminLanguageSection theme={theme} />
       )}
 
       {activeSection === 'plans' && currentSubTab === 'manager' && (
