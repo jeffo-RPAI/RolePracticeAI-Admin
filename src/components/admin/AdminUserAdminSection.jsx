@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { Building2, Users, ArrowLeft, Search, Trash2, Shield, Eye, Phone, Mic, ChevronRight, ChevronUp, ChevronDown, ChevronsUpDown, Settings, Brain, CreditCard, Pencil, MessageCircle, Check, X, Loader2, MapPin, Circle, AlertTriangle, Calendar, Mail, Send } from 'lucide-react';
+import { Building2, Users, ArrowLeft, Search, Trash2, Shield, Eye, Phone, Mic, ChevronRight, ChevronUp, ChevronDown, ChevronsUpDown, Settings, Brain, CreditCard, Pencil, MessageCircle, Check, X, Loader2, MapPin, Circle, AlertTriangle, Calendar, Mail, Send, Clock } from 'lucide-react';
 
 const ALL_METHODOLOGIES = [
   { key: 'bant',             name: 'BANT' },
@@ -1258,6 +1258,11 @@ function OrgDetailView({ orgId, orgName, theme, onBack }) {
   const [orgErrorsLoading, setOrgErrorsLoading] = useState(false);
   const [expandedErrorId, setExpandedErrorId] = useState(null);
 
+  // Email history
+  const [emailHistory, setEmailHistory] = useState(null);
+  const [emailsLoading, setEmailsLoading] = useState(false);
+  const [showEmailHistory, setShowEmailHistory] = useState(false);
+
   const fetchOnlineUsers = useCallback(async () => {
     try {
       const token = await getToken();
@@ -1285,6 +1290,23 @@ function OrgDetailView({ orgId, orgName, theme, onBack }) {
       }
     } catch {}
     setOrgErrorsLoading(false);
+  }, [getToken, orgId]);
+
+  const fetchEmailHistory = useCallback(async () => {
+    setEmailsLoading(true);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/site-admin/organizations/${orgId}/emails`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setEmailHistory(data);
+      }
+    } catch (err) {
+      console.error('Error fetching email history:', err);
+    }
+    setEmailsLoading(false);
   }, [getToken, orgId]);
 
   const fetchOrgUsers = useCallback(async () => {
@@ -2203,6 +2225,109 @@ function OrgDetailView({ orgId, orgName, theme, onBack }) {
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Email History */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg ring-1 ring-slate-200 dark:ring-slate-800 overflow-hidden">
+        <button
+          onClick={() => { setShowEmailHistory(prev => !prev); if (!showEmailHistory && !emailHistory) fetchEmailHistory(); }}
+          className="w-full px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <Mail className="w-4 h-4 text-emerald-500" />
+            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-50">Email History</h3>
+            {emailHistory?.emails?.length > 0 && (
+              <span className="px-1.5 py-0.5 text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full">
+                {emailHistory.emails.length}
+              </span>
+            )}
+          </div>
+          {showEmailHistory ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+        </button>
+        {showEmailHistory && (
+          <div className="px-4 py-3">
+            {emailsLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+              </div>
+            ) : !emailHistory || (emailHistory.emails.length === 0 && emailHistory.upcoming.length === 0) ? (
+              <p className="text-sm text-slate-500 text-center py-4">No emails sent to this organization yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {/* Upcoming Engagement Reminders */}
+                {emailHistory.upcoming?.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" /> Upcoming Reminders
+                    </h4>
+                    <div className="space-y-1.5">
+                      {emailHistory.upcoming.map((item, i) => (
+                        <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 text-sm">
+                          <span className={`px-1.5 py-0.5 text-[10px] font-bold uppercase rounded ${
+                            item.status === 'due'
+                              ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                              : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                          }`}>
+                            {item.status === 'due' ? 'Due' : 'Scheduled'}
+                          </span>
+                          <span className="text-slate-700 dark:text-slate-300 truncate flex-1">
+                            {item.user_name || item.user_email} -- {item.tier_label}
+                          </span>
+                          <span className="text-xs text-slate-400 flex-shrink-0">
+                            {item.days_inactive}d inactive
+                          </span>
+                          <span className="text-xs text-slate-400 flex-shrink-0">
+                            ~{new Date(item.estimated_send_date).toLocaleDateString()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sent Emails Table */}
+                {emailHistory.emails?.length > 0 && (
+                  <div>
+                    {emailHistory.upcoming?.length > 0 && (
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">Sent Emails</h4>
+                    )}
+                    <div className="max-h-96 overflow-y-auto space-y-1">
+                      {emailHistory.emails.map(email => {
+                        const statusStyles = {
+                          delivered: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+                          opened: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+                          bounced: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+                          sent: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
+                          complained: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+                        };
+                        const statusStyle = statusStyles[email.status] || 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400';
+                        return (
+                          <div key={email.id} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-sm transition-colors">
+                            <span className="text-xs text-slate-400 flex-shrink-0 w-20">
+                              {new Date(email.created_at).toLocaleDateString()}
+                            </span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400 truncate w-36 flex-shrink-0">
+                              {email.recipient_email}
+                            </span>
+                            <span className="text-slate-700 dark:text-slate-300 truncate flex-1">
+                              {email.subject}
+                            </span>
+                            <span className="text-[10px] font-medium uppercase text-slate-400 flex-shrink-0 w-24 text-right">
+                              {email.email_type?.replace(/_/g, ' ')}
+                            </span>
+                            <span className={`px-1.5 py-0.5 text-[10px] font-bold uppercase rounded flex-shrink-0 ${statusStyle}`}>
+                              {email.status}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
