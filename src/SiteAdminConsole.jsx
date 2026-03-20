@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Headphones, Users, MessageSquare,
   Activity, BarChart3, Phone, Settings2, Newspaper, SlidersHorizontal,
   FlaskConical, ClipboardList, Bug, MessageCircle, Wrench, Tag,
-  Mail, Globe, UserPlus,
+  Mail, Send, Globe, UserPlus,
 } from 'lucide-react';
 import AdminDashboardSection from './components/admin/AdminDashboardSection';
 import AdminSupportSection from './components/admin/AdminSupportSection';
@@ -26,6 +26,7 @@ import AdminPlatformSettingsSection from './components/admin/AdminPlatformSettin
 import AdminPromoCodesSection from './components/admin/AdminPromoCodesSection';
 import AdminFeedback from './AdminFeedback';
 import AdminEmailLogsSection from './components/admin/AdminEmailLogsSection';
+import AdminEmailSection from './components/admin/AdminEmailSection';
 import AdminWebsiteTrafficSection from './components/admin/AdminWebsiteTrafficSection';
 import AdminTrialLeadsSection from './components/admin/AdminTrialLeadsSection';
 
@@ -62,6 +63,7 @@ const sections = [
     subTabs: [
       { key: 'messaging', label: 'Messaging', icon: MessageSquare },
       { key: 'newsletter', label: 'Newsletter', icon: Newspaper },
+      { key: 'email_mgmt', label: 'Email', icon: Send },
       { key: 'email_logs', label: 'Email Logs', icon: Mail },
       { key: 'settings', label: 'Settings', icon: SlidersHorizontal },
     ],
@@ -189,6 +191,9 @@ export default function SiteAdminConsole({ theme }) {
       )}
       {activeSection === 'comms' && currentSubTab === 'newsletter' && (
         <AdminNewsletterSection theme={theme} />
+      )}
+      {activeSection === 'comms' && currentSubTab === 'email_mgmt' && (
+        <AdminEmailSection theme={theme} />
       )}
       {activeSection === 'comms' && currentSubTab === 'email_logs' && (
         <AdminEmailLogsSection theme={theme} />
