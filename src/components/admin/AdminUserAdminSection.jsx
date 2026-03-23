@@ -4,7 +4,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { Building2, Users, ArrowLeft, Search, Trash2, Shield, Eye, Phone, Mic, ChevronRight, ChevronUp, ChevronDown, ChevronsUpDown, Settings, Brain, CreditCard, Pencil, MessageCircle, Check, X, Loader2, MapPin, Circle, AlertTriangle, Calendar, Mail, Send, Clock } from 'lucide-react';
+import { Building2, Users, ArrowLeft, Search, Trash2, Shield, Eye, Phone, Mic, ChevronRight, ChevronUp, ChevronDown, ChevronsUpDown, Settings, Brain, CreditCard, Pencil, MessageCircle, Check, X, Loader2, MapPin, Circle, AlertTriangle, Calendar, Mail, Send, Clock, FlaskConical, Plus, Copy, RefreshCw, Key } from 'lucide-react';
+import AdminTrialCodes from '../../AdminTrialCodes';
 
 const ALL_METHODOLOGIES = [
   { key: 'bant',             name: 'BANT' },
@@ -30,6 +31,7 @@ export default function AdminUserAdminSection({ theme, navigateToOrg, onNavigate
   const [selected, setSelected] = useState(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [deletingIds, setDeletingIds] = useState(new Set());
+  const [tierFilter, setTierFilter] = useState('all');
   const [sortCol, setSortCol] = useState('name');
   const [sortDir, setSortDir] = useState('asc');
   const [integrityResult, setIntegrityResult] = useState(null);
@@ -277,6 +279,202 @@ export default function AdminUserAdminSection({ theme, navigateToOrg, onNavigate
 
   const allSelected = orgs.length > 0 && selected.size === orgs.length;
 
+  // ── Pilot Invites State ──────────────────────────────────────────────────
+  const [showPilotInvites, setShowPilotInvites] = useState(false);
+  const [pilotAccounts, setPilotAccounts] = useState([]);
+  const [pilotLoading, setPilotLoading] = useState(false);
+  const [pilotShowForm, setPilotShowForm] = useState(false);
+  const [pilotSaving, setPilotSaving] = useState(false);
+  const [pilotSendingId, setPilotSendingId] = useState(null);
+  const [pilotExtendingId, setPilotExtendingId] = useState(null);
+  const [pilotRevokingId, setPilotRevokingId] = useState(null);
+  const [pilotCopied, setPilotCopied] = useState(null);
+  const [pilotError, setPilotError] = useState(null);
+  const [pilotExpandedId, setPilotExpandedId] = useState(null);
+  const [pilotExtendDays, setPilotExtendDays] = useState(7);
+  const [pilotForm, setPilotForm] = useState({
+    email: '', company_name: '', trial_duration_days: 7, trial_minutes: 200, max_users: 10, notes: ''
+  });
+  const [pilotEditingNotesId, setPilotEditingNotesId] = useState(null);
+  const [pilotNotesDraft, setPilotNotesDraft] = useState('');
+  const [pilotSavingNotes, setPilotSavingNotes] = useState(false);
+  const [showPilotCodes, setShowPilotCodes] = useState(false);
+
+  const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
+
+  const loadPilotAccounts = useCallback(async () => {
+    setPilotLoading(true);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/admin/provisioned-accounts`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPilotAccounts(data.accounts || []);
+      }
+    } catch (e) {
+      setPilotError('Failed to load pilot accounts');
+    } finally {
+      setPilotLoading(false);
+    }
+  }, [getToken]);
+
+  async function createPilotAccount() {
+    if (!pilotForm.email || !pilotForm.company_name) return setPilotError('Email and company name are required');
+    setPilotSaving(true); setPilotError(null);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/admin/provision-account`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: pilotForm.email,
+          company_name: pilotForm.company_name,
+          trial_duration_days: pilotForm.trial_duration_days,
+          trial_minutes: pilotForm.trial_minutes,
+          max_users: pilotForm.max_users,
+          notes: pilotForm.notes
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) return setPilotError(data.error || 'Failed to create account');
+      setPilotForm({ email: '', company_name: '', trial_duration_days: 7, trial_minutes: 200, max_users: 10, notes: '' });
+      setPilotShowForm(false);
+      await loadPilotAccounts();
+    } catch (e) {
+      setPilotError('Failed to create account');
+    } finally {
+      setPilotSaving(false);
+    }
+  }
+
+  async function sendPilotInvite(id) {
+    setPilotSendingId(id); setPilotError(null);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/admin/provisioned-accounts/${id}/send-invite`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) return setPilotError(data.error || 'Failed to send invite');
+      await loadPilotAccounts();
+    } catch (e) {
+      setPilotError('Failed to send invite');
+    } finally {
+      setPilotSendingId(null);
+    }
+  }
+
+  async function extendPilotInvite(id) {
+    setPilotExtendingId(id); setPilotError(null);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/admin/provisioned-accounts/${id}/extend`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ additional_days: pilotExtendDays })
+      });
+      const data = await res.json();
+      if (!res.ok) return setPilotError(data.error || 'Failed to extend pilot');
+      await loadPilotAccounts();
+    } catch (e) {
+      setPilotError('Failed to extend pilot');
+    } finally {
+      setPilotExtendingId(null);
+      setPilotExpandedId(null);
+    }
+  }
+
+  async function revokePilotAccount(id) {
+    if (!window.confirm('Revoke this pilot invite? The user will no longer be able to claim it.')) return;
+    setPilotRevokingId(id); setPilotError(null);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/admin/provisioned-accounts/${id}/revoke`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) return setPilotError(data.error || 'Failed to revoke invite');
+      await loadPilotAccounts();
+    } catch (e) {
+      setPilotError('Failed to revoke invite');
+    } finally {
+      setPilotRevokingId(null);
+    }
+  }
+
+  async function deletePilotAccount(id, status) {
+    const msg = status === 'claimed'
+      ? 'Delete this invite record? The organization and its data will remain intact.'
+      : 'Delete this provisioned account? This will also remove the unused organization.';
+    if (!window.confirm(msg)) return;
+    try {
+      const token = await getToken();
+      await fetch(`${BACKEND_URL}/api/admin/provisioned-accounts/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await loadPilotAccounts();
+    } catch (e) {
+      setPilotError('Failed to delete account');
+    }
+  }
+
+  function copyPilotInviteLink(account) {
+    if (!account.invite_token) return;
+    const url = `${APP_URL}/claim/${account.invite_token}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setPilotCopied(account.id);
+      setTimeout(() => setPilotCopied(null), 2000);
+    });
+  }
+
+  async function savePilotNotes(id) {
+    setPilotSavingNotes(true);
+    try {
+      const token = await getToken();
+      await fetch(`${BACKEND_URL}/api/admin/provisioned-accounts/${id}/notes`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: pilotNotesDraft })
+      });
+      setPilotEditingNotesId(null);
+      await loadPilotAccounts();
+    } catch (e) {
+      setPilotError('Failed to save notes');
+    } finally {
+      setPilotSavingNotes(false);
+    }
+  }
+
+  function pilotStatusBadge(status) {
+    const map = {
+      pending:  'bg-slate-700 text-slate-300',
+      claimed:  'bg-green-900/40 text-green-400',
+      revoked:  'bg-red-900/40 text-red-400',
+    };
+    return map[status] || 'bg-slate-700 text-slate-300';
+  }
+
+  // ── Tier filtering ──────────────────────────────────────────────────────
+  const filteredOrgs = orgs.filter(org => {
+    if (tierFilter === 'all') return true;
+    if (tierFilter === 'paid') return !['trial', 'pilot', 'free'].includes(org.tier_key);
+    if (tierFilter === 'pilot') return org.tier_key === 'pilot';
+    if (tierFilter === 'trial') return ['trial', 'free'].includes(org.tier_key) || !org.tier_key;
+    return true;
+  });
+
+  const filterCounts = {
+    all: orgs.length,
+    paid: orgs.filter(o => !['trial', 'pilot', 'free'].includes(o.tier_key)).length,
+    pilot: orgs.filter(o => o.tier_key === 'pilot').length,
+    trial: orgs.filter(o => ['trial', 'free'].includes(o.tier_key) || !o.tier_key).length,
+  };
+
   async function runIntegrityCheck() {
     setIntegrityLoading(true);
     try {
@@ -359,7 +557,7 @@ export default function AdminUserAdminSection({ theme, navigateToOrg, onNavigate
       : <ChevronDown className="w-3 h-3 text-blue-500" />;
   }
 
-  const sortedOrgs = [...orgs].sort((a, b) => {
+  const sortedOrgs = [...filteredOrgs].sort((a, b) => {
     let av = a[sortCol] ?? '';
     let bv = b[sortCol] ?? '';
     if (sortCol === 'member_count' || sortCol === 'amount_cents' || sortCol === 'minutes_used') {
@@ -377,8 +575,320 @@ export default function AdminUserAdminSection({ theme, navigateToOrg, onNavigate
     return <OrgDetailView orgId={selectedOrg.id} orgName={selectedOrg.name} theme={theme} onBack={() => { setSelectedOrg(null); fetchOrgs(); }} />;
   }
 
+  const isDark = theme === 'dark';
+
   return (
     <div className="space-y-4">
+      {/* Filter pills */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {[
+          { key: 'all', label: 'All' },
+          { key: 'paid', label: 'Paid' },
+          { key: 'pilot', label: 'Pilot' },
+          { key: 'trial', label: 'Trial' },
+        ].map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setTierFilter(key)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              tierFilter === key
+                ? 'bg-blue-600 text-white shadow-sm'
+                : isDark ? 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+            }`}
+          >
+            {label}
+            <span className={`ml-1.5 ${tierFilter === key ? 'text-blue-200' : isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+              {filterCounts[key]}
+            </span>
+          </button>
+        ))}
+
+        <div className="flex-1" />
+
+        {/* Pilot management buttons */}
+        <button
+          onClick={() => { setShowPilotInvites(!showPilotInvites); setShowPilotCodes(false); if (!showPilotInvites) loadPilotAccounts(); }}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            showPilotInvites
+              ? 'bg-blue-600 text-white shadow-sm'
+              : isDark ? 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+        >
+          <FlaskConical className="w-3 h-3" />
+          Pilot Invites
+        </button>
+        <button
+          onClick={() => { setShowPilotCodes(!showPilotCodes); setShowPilotInvites(false); }}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            showPilotCodes
+              ? 'bg-blue-600 text-white shadow-sm'
+              : isDark ? 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+        >
+          <Key className="w-3 h-3" />
+          Pilot Codes
+        </button>
+      </div>
+
+      {/* Pilot Invites Panel */}
+      {showPilotInvites && (
+        <div className={`rounded-2xl border p-5 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="font-semibold text-base">Pilot Invitations</h2>
+              <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                Create invite links for companies. Each link gives a pilot period with unlimited calls.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={loadPilotAccounts} className={`p-2 rounded-lg ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`} title="Refresh">
+                <RefreshCw className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setPilotShowForm(!pilotShowForm)}
+                className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition"
+              >
+                <Plus className="h-4 w-4" />
+                New Invite
+              </button>
+            </div>
+          </div>
+
+          {pilotError && (
+            <div className="mb-4 rounded-lg bg-red-900/30 border border-red-700/40 text-red-300 px-4 py-3 text-sm">
+              {pilotError}
+              <button className="ml-2 underline text-xs" onClick={() => setPilotError(null)}>dismiss</button>
+            </div>
+          )}
+
+          {/* Create form */}
+          {pilotShowForm && (
+            <div className={`rounded-2xl border p-5 mb-6 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+              <h3 className="font-semibold text-sm mb-4">Create New Pilot Account</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Company Name *</label>
+                  <input className={`w-full rounded-lg px-3 py-2 text-sm border ${isDark ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'}`} placeholder="Acme Corp"
+                    value={pilotForm.company_name} onChange={e => setPilotForm(f => ({ ...f, company_name: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Contact Email *</label>
+                  <input className={`w-full rounded-lg px-3 py-2 text-sm border ${isDark ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'}`} type="email" placeholder="contact@acme.com"
+                    value={pilotForm.email} onChange={e => setPilotForm(f => ({ ...f, email: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Pilot Duration (days)</label>
+                  <input className={`w-full rounded-lg px-3 py-2 text-sm border ${isDark ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'}`} type="number" min={1} max={90}
+                    value={pilotForm.trial_duration_days} onChange={e => setPilotForm(f => ({ ...f, trial_duration_days: parseInt(e.target.value) || 7 }))} />
+                </div>
+                <div>
+                  <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Practice Minutes</label>
+                  <input className={`w-full rounded-lg px-3 py-2 text-sm border ${isDark ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'}`} type="number" min={30} max={9999}
+                    value={pilotForm.trial_minutes} onChange={e => setPilotForm(f => ({ ...f, trial_minutes: parseInt(e.target.value) || 200 }))} />
+                </div>
+                <div>
+                  <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Max Users</label>
+                  <input className={`w-full rounded-lg px-3 py-2 text-sm border ${isDark ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'}`} type="number" min={1} max={100}
+                    value={pilotForm.max_users} onChange={e => setPilotForm(f => ({ ...f, max_users: parseInt(e.target.value) || 10 }))} />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Notes (internal)</label>
+                  <input className={`w-full rounded-lg px-3 py-2 text-sm border ${isDark ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'}`} placeholder="e.g. Referred by John Smith"
+                    value={pilotForm.notes} onChange={e => setPilotForm(f => ({ ...f, notes: e.target.value }))} />
+                </div>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={createPilotAccount}
+                  disabled={pilotSaving}
+                  className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-50 transition"
+                >
+                  {pilotSaving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                  Create Account
+                </button>
+                <button onClick={() => setPilotShowForm(false)} className={`px-4 py-2 text-sm rounded-xl ${isDark ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Pilot accounts list */}
+          {pilotLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-700 border-t-blue-500" />
+            </div>
+          ) : pilotAccounts.length === 0 ? (
+            <div className={`text-center py-12 rounded-2xl border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+              <FlaskConical className={`h-10 w-10 mx-auto mb-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`} />
+              <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No pilot accounts yet</p>
+              <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Create an invite link to get started.</p>
+            </div>
+          ) : (
+            <div className={`rounded-2xl border divide-y ${isDark ? 'bg-slate-900 border-slate-800 divide-slate-800' : 'bg-white border-slate-200 divide-slate-100'}`}>
+              {pilotAccounts.map(account => (
+                <div key={account.id} className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm truncate">{account.company_name}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${pilotStatusBadge(account.status)}`}>
+                          {account.status}
+                        </span>
+                        {account.invite_token && (
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
+                            invite sent
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{account.email}</p>
+                      <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                        {account.trial_duration_days}d pilot
+                        {account.max_users && ` · up to ${account.max_users} users`}
+                        {account.claimed_at && ` · claimed ${new Date(account.claimed_at).toLocaleDateString()}`}
+                        {account.invite_sent_at && !account.claimed_at && ` · invited ${new Date(account.invite_sent_at).toLocaleDateString()}`}
+                      </p>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      {account.status !== 'claimed' && (
+                        <button
+                          onClick={() => sendPilotInvite(account.id)}
+                          disabled={pilotSendingId === account.id}
+                          title={account.invite_token ? 'Resend invite email' : 'Send invite email'}
+                          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${isDark ? 'bg-blue-900/40 text-blue-400 hover:bg-blue-900/60' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'} disabled:opacity-50`}
+                        >
+                          {pilotSendingId === account.id
+                            ? <RefreshCw className="h-3 w-3 animate-spin" />
+                            : <Send className="h-3 w-3" />}
+                          {account.invite_token ? 'Resend' : 'Send Invite'}
+                        </button>
+                      )}
+                      {account.invite_token && (
+                        <button
+                          onClick={() => copyPilotInviteLink(account)}
+                          title="Copy invite link"
+                          className={`p-1.5 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
+                        >
+                          {pilotCopied === account.id ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                        </button>
+                      )}
+                      {account.status === 'pending' && (
+                        <button
+                          onClick={() => revokePilotAccount(account.id)}
+                          disabled={pilotRevokingId === account.id}
+                          title="Revoke pilot invite"
+                          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${isDark ? 'bg-red-900/40 text-red-400 hover:bg-red-900/60' : 'bg-red-50 text-red-600 hover:bg-red-100'} disabled:opacity-50`}
+                        >
+                          {pilotRevokingId === account.id
+                            ? <RefreshCw className="h-3 w-3 animate-spin" />
+                            : <X className="h-3 w-3" />}
+                          Revoke
+                        </button>
+                      )}
+                      {account.status === 'claimed' && (
+                        <button
+                          onClick={() => setPilotExpandedId(pilotExpandedId === account.id ? null : account.id)}
+                          title="Extend pilot"
+                          className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition ${isDark ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                        >
+                          <Clock className="h-3 w-3" />
+                          Extend
+                          {pilotExpandedId === account.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => deletePilotAccount(account.id, account.status)}
+                        title="Delete invite record"
+                        className={`p-1.5 rounded-lg transition ${isDark ? 'text-slate-500 hover:text-red-400 hover:bg-slate-800' : 'text-slate-400 hover:text-red-600 hover:bg-red-50'}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Extend panel */}
+                  {pilotExpandedId === account.id && (
+                    <div className={`mt-3 rounded-xl p-3 flex items-center gap-3 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+                      <label className={`text-xs font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                        Add days:
+                      </label>
+                      <input
+                        type="number" min={1} max={90}
+                        value={pilotExtendDays}
+                        onChange={e => setPilotExtendDays(parseInt(e.target.value) || 7)}
+                        className={`w-20 rounded-lg px-2 py-1 text-sm border ${isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'}`}
+                      />
+                      <button
+                        onClick={() => extendPilotInvite(account.id)}
+                        disabled={pilotExtendingId === account.id}
+                        className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-500 disabled:opacity-50 transition"
+                      >
+                        {pilotExtendingId === account.id ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                        Confirm
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Notes inline edit */}
+                  {pilotEditingNotesId === account.id ? (
+                    <div className="mt-3 flex items-start gap-2">
+                      <textarea
+                        rows={2}
+                        autoFocus
+                        value={pilotNotesDraft}
+                        onChange={e => setPilotNotesDraft(e.target.value)}
+                        placeholder="Add a note about this account..."
+                        className={`flex-1 rounded-lg px-3 py-2 text-xs border resize-none ${isDark ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400'}`}
+                      />
+                      <div className="flex flex-col gap-1">
+                        <button
+                          onClick={() => savePilotNotes(account.id)}
+                          disabled={pilotSavingNotes}
+                          className="flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-500 disabled:opacity-50"
+                        >
+                          {pilotSavingNotes ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setPilotEditingNotesId(null)}
+                          className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs ${isDark ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                        >
+                          <X className="h-3 w-3" />
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-2 flex items-start gap-1.5">
+                      {account.notes
+                        ? <p className={`text-xs italic flex-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{account.notes}</p>
+                        : <p className={`text-xs flex-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No notes</p>
+                      }
+                      <button
+                        onClick={() => { setPilotEditingNotesId(account.id); setPilotNotesDraft(account.notes || ''); }}
+                        title="Edit notes"
+                        className={`shrink-0 p-0.5 rounded transition ${isDark ? 'text-slate-600 hover:text-slate-300' : 'text-slate-300 hover:text-slate-600'}`}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Pilot Codes Panel */}
+      {showPilotCodes && (
+        <div className={`rounded-2xl border p-5 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+          <AdminTrialCodes theme={theme} getToken={getToken} />
+        </div>
+      )}
+
       {/* Search + bulk actions */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
@@ -899,7 +1409,10 @@ export default function AdminUserAdminSection({ theme, navigateToOrg, onNavigate
                         </button>
                       </span>
                     )}
-                    {org.account_number && <span className="text-xs text-slate-400 dark:text-slate-500">{org.account_number}</span>}
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      {org.account_number && <span className="text-xs text-slate-400 dark:text-slate-500">{org.account_number}</span>}
+                      <TierBadge tierKey={org.tier_key} subscriptionStatus={org.subscription_status || org.sub_status} trialEnd={org.trial_end} />
+                    </div>
                   </div>
                   <span className="flex items-center justify-center">
                     {org.setup_completed_at ? (
@@ -938,9 +1451,9 @@ export default function AdminUserAdminSection({ theme, navigateToOrg, onNavigate
                 </div>
               );
             })}
-            {orgs.length === 0 && (
+            {sortedOrgs.length === 0 && (
               <div className="px-4 py-8 text-center text-sm text-slate-500">
-                {search ? 'No organizations match your search' : 'No organizations found'}
+                {search || tierFilter !== 'all' ? 'No organizations match your filters' : 'No organizations found'}
               </div>
             )}
           </div>
@@ -1007,6 +1520,36 @@ function StatusBadge({ status, tierKey }) {
   return (
     <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${styles[effectiveKey] || styles.trialing}`}>
       {labels[effectiveKey] || status || 'trial'}
+    </span>
+  );
+}
+
+function TierBadge({ tierKey, subscriptionStatus, trialEnd }) {
+  const isExpired = trialEnd && new Date(trialEnd) < new Date() && ['trial', 'pilot', 'free'].includes(tierKey);
+  if (isExpired) {
+    return (
+      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+        Expired
+      </span>
+    );
+  }
+  const styles = {
+    solo: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    team: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    business: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    enterprise: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    pilot: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    trial: 'bg-slate-100 text-slate-600 dark:bg-slate-700/50 dark:text-slate-400',
+    free: 'bg-slate-100 text-slate-600 dark:bg-slate-700/50 dark:text-slate-400',
+  };
+  const labels = {
+    solo: 'Paid', team: 'Paid', business: 'Paid', enterprise: 'Paid',
+    pilot: 'Pilot', trial: 'Trial', free: 'Trial',
+  };
+  const key = tierKey || 'trial';
+  return (
+    <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${styles[key] || styles.trial}`}>
+      {labels[key] || 'Trial'}
     </span>
   );
 }

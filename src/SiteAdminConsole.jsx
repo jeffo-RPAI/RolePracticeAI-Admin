@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import {
   LayoutDashboard, Headphones, Users, MessageSquare,
   Activity, BarChart3, Phone, Settings2, Newspaper, SlidersHorizontal,
-  FlaskConical, ClipboardList, Bug, MessageCircle, Wrench, Tag,
+  ClipboardList, Bug, MessageCircle, Wrench, Tag,
   Mail, Send, Globe, UserPlus, Languages,
 } from 'lucide-react';
 import AdminDashboardSection from './components/admin/AdminDashboardSection';
@@ -15,7 +15,8 @@ import AdminChatPanel from './components/admin/AdminChatPanel';
 import AdminAutoFixSettings from './components/admin/AdminAutoFixSettings';
 import AdminUserAdminSection from './components/admin/AdminUserAdminSection';
 import AdminMessagingSection from './components/admin/AdminMessagingSection';
-import AdminTrialsSection from './components/admin/AdminTrialsSection';
+// AdminTrialsSection functionality has been consolidated into AdminUserAdminSection (Accounts)
+// import AdminTrialsSection from './components/admin/AdminTrialsSection';
 import AdminWaitlistSection from './components/admin/AdminWaitlistSection';
 import AdminSystemHealthSection from './components/admin/AdminSystemHealthSection';
 import AdminScoreAnalyticsSection from './components/admin/AdminScoreAnalyticsSection';
@@ -37,7 +38,6 @@ const sections = [
     key: 'users', label: 'Users', icon: Users,
     subTabs: [
       { key: 'accounts', label: 'Accounts', icon: Users },
-      { key: 'trials', label: 'Pilots', icon: FlaskConical },
       { key: 'waitlist', label: 'Waitlist', icon: ClipboardList },
     ],
   },
@@ -151,9 +151,6 @@ export default function SiteAdminConsole({ theme }) {
 
       {activeSection === 'users' && currentSubTab === 'accounts' && (
         <AdminUserAdminSection theme={theme} navigateToOrg={navigateToOrg} onNavigateConsumed={() => setNavigateToOrg(null)} />
-      )}
-      {activeSection === 'users' && currentSubTab === 'trials' && (
-        <AdminTrialsSection theme={theme} />
       )}
       {activeSection === 'users' && currentSubTab === 'waitlist' && (
         <AdminWaitlistSection theme={theme} />
