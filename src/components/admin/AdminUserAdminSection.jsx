@@ -1805,7 +1805,7 @@ function OrgDetailView({ orgId, orgName, theme, onBack }) {
                 { key: 'white_label', label: 'White Label' },
                 { key: 'dedicated_support', label: 'Dedicated Support' },
                 { key: 'onboarding_training', label: 'Onboarding' },
-                { key: 'call_aid', label: 'Live Call AI' },
+                { key: 'call_aid', label: 'RoleCoach' },
                 { key: 'sales_methodology', label: 'Coaching Framework' },
                 { key: 'post_call_intelligence', label: 'Post-Call Intelligence' },
               ];
