@@ -897,7 +897,7 @@ export default function AdminUserAdminSection({ theme, navigateToOrg, onNavigate
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search organizations..."
+            placeholder="Search by name, email, or account #..."
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
         </div>
