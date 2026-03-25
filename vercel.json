@@ -7,6 +7,7 @@
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.rolepractice.ai https://*.clerk.accounts.dev https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://api.rolepractice.ai wss://api.rolepractice.ai https://clerk.rolepractice.ai https://*.clerk.accounts.dev https://*.sentry.io; frame-src https://*.clerk.accounts.dev https://challenges.cloudflare.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'"

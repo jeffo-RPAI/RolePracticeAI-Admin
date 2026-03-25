@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import DOMPurify from 'dompurify';
 import {
   Mail, Send, Sparkles, Save, Trash2, Clock, Filter,
   CheckSquare, Square, ChevronDown, ChevronUp, RefreshCw,
@@ -691,7 +692,7 @@ export default function AdminEmailSection({ theme }) {
           <div className={`text-xs font-medium mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Body</div>
           <div
             className={`prose prose-sm max-w-none ${isDark ? 'prose-invert' : ''}`}
-            dangerouslySetInnerHTML={{ __html: body || '<p style="color:#999">(empty body)</p>' }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(body) || '<p style="color:#999">(empty body)</p>' }}
           />
         </div>
         <div className="mt-4 flex justify-end">
